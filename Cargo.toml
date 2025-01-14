@@ -6,6 +6,13 @@ edition = "2018"
 [dependencies]
 bootloader = "0.9" #use the bootloader crate responsible for initializing the CPU and loading the kernel
 volatile = "0.2.6" #so that the write should not be optimized right away and prevent it getting ommited 
+spin = "0.5.2" #a type of mutex that instead of blocking, the threads simply try to lock it again and again in a tight loop thus burning CPU time until the mutex is free again
+
+
+#adding the lazy_static crate
+[dependencies.lazy_static]
+version = "1.0"
+features = ["spin_no_std"]
 
 
 # disabling unwinding(unwinding is the process of cleaning up {e.g., running destructors} before terminating or recovering from a panic)

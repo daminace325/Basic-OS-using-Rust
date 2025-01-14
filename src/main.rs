@@ -7,7 +7,9 @@ mod vga_buffer; //import module for VGA buffer
 
 #[no_mangle] //disable name mangling to ensure that the Rust compiler really outputs a function with the name _start
 pub extern "C" fn _start() -> ! {  //start function
-    vga_buffer::print_something(); //calling print_something() function from vga_buffer.rs
+    use core::fmt::Write; //directly running the print function
+    vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
+    write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337).unwrap();
 
     loop {}
 }
