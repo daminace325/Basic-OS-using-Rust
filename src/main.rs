@@ -1,5 +1,5 @@
-#![no_std] //disable standard library
-#![no_main] //telling the rust compiler not to use the normal entry point chain, thus removing main function
+#![no_std] //disable Rust-standard library
+#![no_main] //disable the rust compiler not to use the normal entry point chain, thus removing main function
 
 use core::panic::PanicInfo;
 
