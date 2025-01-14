@@ -4,3 +4,11 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+
+
+# disabling unwinding(unwinding is the process of cleaning up {e.g., running destructors} before terminating or recovering from a panic)
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
