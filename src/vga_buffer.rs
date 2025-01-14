@@ -1,3 +1,7 @@
+use volatile::Volatile;
+use core::fmt;
+
+
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -42,9 +46,10 @@ struct ScreenChar {
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
-#[repr(transparent)]
-struct Buffer { //to represent a screen character and the text buffer
-    chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+
+// ensures to make VGA buffer volatile
+struct Buffer {
+    chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 
@@ -70,10 +75,10 @@ impl Writer {
                 let col = self.column_position;
 
                 let color_code = self.color_code;
-                self.buffer.chars[row][col] = ScreenChar {
+                self.buffer.chars[row][col].write(ScreenChar { //update the write_byte method with new ScreenChar
                     ascii_character: byte,
                     color_code,
-                };
+                });
                 self.column_position += 1;
             }
         }
@@ -97,13 +102,24 @@ impl Writer {
 
 //function to print
 pub fn print_something() {
-    let mut writer = Writer { //creates new writer
+    use core::fmt::Write;
+    let mut writer = Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     };
 
     writer.write_byte(b'H');
-    writer.write_string("ello ");
-    writer.write_string("Wörld!");
+    writer.write_string("ello! ");
+    write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap(); //printed using fmt in write
 }
+
+
+//using Rust's formatting macros to print different types, like integers or floats
+impl fmt::Write for Writer { 
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
+    }
+}
+
