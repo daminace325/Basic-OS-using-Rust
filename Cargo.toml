@@ -41,4 +41,8 @@ test-timeout = 15 #time-out(in seconds) for bootloader if it fails ands ends up 
 
 [[test]] 
 name = "should_panic"
-harness = false #disable the harness flag for the test as the test runner isn’t really needed for single test function
+harness = false #disable the harness flag for should_panic as the test runner isn’t really needed for single test function
+
+[[test]]
+name = "stack_overflow"
+harness = false #same as disabling harness flag for stack_overflow
