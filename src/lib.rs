@@ -49,7 +49,8 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! { //exit QEMU with an error mes
 /// Entry point for `cargo test`
 #[cfg(test)]
 #[no_mangle]
-pub extern "C" fn _start() -> ! {
+pub extern "C" fn _start() -> ! { //this function only used when 'cargo test --lib'
+    init(); //to setup IDT before running tests
     test_main();
     loop {}
 }
