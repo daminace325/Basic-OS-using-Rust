@@ -31,6 +31,8 @@ test-args = [
     "-device", 
     "isa-debug-exit,iobase=0xf4,iosize=0x04", #a package to exit QEMU from the guest system
     "-serial", #to see the serial output from QEMU
-    "stdio"
+    "stdio",
+    "-display",  #hide QEMU window that pops up for a short time
+    "none"
 ] 
 test-success-exit-code = 33 #maps success exit code to exit code 0 hence cargo test correctly recognizes the success case

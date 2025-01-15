@@ -20,6 +20,7 @@ pub extern "C" fn _start() -> ! {  //start function
 }
 
 //function called on panic
+#[cfg(not(test))] //use panic handler also on testing
 #[panic_handler] 
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
@@ -61,4 +62,15 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
         let mut port = Port::new(0xf4);
         port.write(exit_code as u32);
     }
+}
+
+
+//panic handler in test mode
+#[cfg(test)]
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! { //exit QEMU with an error message on a panic
+    serial_println!("[failed]\n");
+    serial_println!("Error: {}\n", info);
+    exit_qemu(QemuExitCode::Failed);
+    loop {}
 }
