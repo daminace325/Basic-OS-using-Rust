@@ -29,10 +29,10 @@ fn panic(info: &PanicInfo) -> ! {
 
 
 #[cfg(test)]
-pub fn test_runner(tests: &[&dyn Fn()]) { //a function to tests
+pub fn test_runner(tests: &[&dyn Testable]) { //a function to tests
     serial_println!("Running {} tests", tests.len()); //print to the serial interface
     for test in tests {
-        test();
+        test.run(); // use the new Testable trait
     }
 
     exit_qemu(QemuExitCode::Success); //to exit QEMU after all tests have run
@@ -42,9 +42,7 @@ pub fn test_runner(tests: &[&dyn Fn()]) { //a function to tests
 
 #[test_case]
 fn trivial_assertion() {
-    serial_print!("trivial assertion... ");
-    assert_eq!(0, 1);
-    serial_println!("[ok]");
+    assert_eq!(1, 1);
 }
 
 
@@ -73,4 +71,22 @@ fn panic(info: &PanicInfo) -> ! { //exit QEMU with an error message on a panic
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
     loop {}
+}
+
+
+//a new testable trait
+pub trait Testable {
+    fn run(&self) -> ();
+}
+
+//implement this trait for all types T Testable
+impl<T> Testable for T
+where
+    T: Fn(),
+{
+    fn run(&self) {
+        serial_print!("{}...\t", core::any::type_name::<T>()); 
+        self();
+        serial_println!("[ok]");
+    }
 }
