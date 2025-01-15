@@ -10,6 +10,7 @@ use core::panic::PanicInfo;
 pub mod serial; //import serial module
 pub mod vga_buffer; //import module for VGA buffer
 pub mod interrupts; //import interrupts module
+pub mod gdt; //import GDT(Global Descriptor Table)
 
 //a new testable trait
 pub trait Testable {
@@ -80,5 +81,6 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 
 
 pub fn init() {
+    gdt::init(); //call GDT
     interrupts::init_idt();  //call IDT from interrupt.rs
 }
