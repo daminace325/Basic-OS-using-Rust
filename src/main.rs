@@ -12,8 +12,16 @@ use rust_os::println;
 pub extern "C" fn _start() -> ! {  //start function
     println!("Hello World{}", "!"); //directly use println! function using macros
 
+    rust_os::init(); 
+
+    // invoke a breakpoint exception, int3 execution causes this exception
+    x86_64::instructions::interrupts::int3();
+
     #[cfg(test)] //ensure the call only happens during tests
     test_main();
+
+    //if this is printed that means exceptions are being handled
+    println!("It did not crash!");
 
     loop {}
 }

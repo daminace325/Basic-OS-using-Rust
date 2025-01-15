@@ -3,11 +3,13 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+#![feature(abi_x86_interrupt)] //to use x86-interrupt calling convention
 
 use core::panic::PanicInfo;
 
 pub mod serial; //import serial module
 pub mod vga_buffer; //import module for VGA buffer
+pub mod interrupts; //import interrupts module
 
 //a new testable trait
 pub trait Testable {
@@ -73,4 +75,9 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
         let mut port = Port::new(0xf4);
         port.write(exit_code as u32);
     }
+}
+
+
+pub fn init() {
+    interrupts::init_idt();  //call IDT from interrupt.rs
 }
