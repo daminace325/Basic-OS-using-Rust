@@ -4,13 +4,17 @@ use x86_64::structures::idt::{
 };
 use crate::println;
 use lazy_static::lazy_static; //to make idt stactic since idt on its own is treated as a normal hence its time doesnt live long enough for interrupt handling
+use crate::gdt;
 
 
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new(); //creates a new IDT
         idt.breakpoint.set_handler_fn(breakpoint_handler); //add breakpoint handler into the IDT
-        idt.double_fault.set_handler_fn(double_fault_handler); //double fault handler to handler exceptions who do not have a handler in IDT 
+        unsafe{
+            idt.double_fault.set_handler_fn(double_fault_handler) //double fault handler to handler exceptions who do not have a handler in IDT 
+            .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX); //to set the stack index for double fault handler in the IDT
+        }
         idt
     };
 }
