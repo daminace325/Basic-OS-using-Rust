@@ -17,7 +17,7 @@ features = ["spin_no_std"]
 
 # disabling unwinding(unwinding is the process of cleaning up {e.g., running destructors} before terminating or recovering from a panic)
 [profile.dev] #profile used for `cargo build`
-panic = "abort" #disable stack unwinding on panic
+# panic = "abort" #disable stack unwinding on panic
 
 [profile.release] #profile used for `cargo build --release`
-panic = "abort" #disable stack unwinding on panic
+# panic = "abort" #disable stack unwinding on panic

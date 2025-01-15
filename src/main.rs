@@ -1,5 +1,8 @@
 #![no_std] //disable Rust-standard library
 #![no_main] //disable the rust compiler not to use the normal entry point chain, thus removing main function
+#![feature(custom_test_frameworks)] //a test framework from rust on bare metal environment
+#![test_runner(crate::test_runner)]
+#![reexport_test_harness_main = "test_main"] //to change the name of the generated function to call test_main()
 
 use core::panic::PanicInfo;
 
@@ -9,8 +12,9 @@ mod vga_buffer; //import module for VGA buffer
 pub extern "C" fn _start() -> ! {  //start function
     println!("Hello World{}", "!"); //directly use println! function using macros
 
-    //some panic message
-    panic!("Some Panic Message!");
+    #[cfg(test)] //ensure the call only happens during tests
+    test_main();
+
     loop {}
 }
 
@@ -19,4 +23,21 @@ pub extern "C" fn _start() -> ! {  //start function
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
     loop {}
+}
+
+
+#[cfg(test)]
+pub fn test_runner(tests: &[&dyn Fn()]) { //a function to tests
+    println!("Running {} tests", tests.len());
+    for test in tests {
+        test();
+    }
+}
+
+
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    println!("[ok]");
 }
