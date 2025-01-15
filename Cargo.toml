@@ -37,3 +37,8 @@ test-args = [
 ] 
 test-success-exit-code = 33 #maps success exit code to exit code 0 hence cargo test correctly recognizes the success case
 test-timeout = 15 #time-out(in seconds) for bootloader if it fails ands ends up in a endless loop
+
+
+[[test]] 
+name = "should_panic"
+harness = false #disable the harness flag for the test as the test runner isn’t really needed for single test function
