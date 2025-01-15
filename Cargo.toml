@@ -1,0 +1,48 @@
+[package]
+name = "rust_os"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+bootloader = "0.9" #use the bootloader crate responsible for initializing the CPU and loading the kernel
+volatile = "0.2.6" #so that the write should not be optimized right away and prevent it getting ommited 
+spin = "0.5.2" #a type of mutex that instead of blocking, the threads simply try to lock it again and again in a tight loop thus burning CPU time until the mutex is free again
+x86_64 = "0.14.2" #will be used to exit from Qemu through abstractions 
+uart_16550 = "0.2.0" #an old serial port used to send the data from our kernel to the host system
+
+
+#adding the lazy_static crate
+[dependencies.lazy_static]
+version = "1.0"
+features = ["spin_no_std"]
+
+
+# disabling unwinding(unwinding is the process of cleaning up {e.g., running destructors} before terminating or recovering from a panic)
+[profile.dev] #profile used for `cargo build`
+# panic = "abort" #disable stack unwinding on panic
+
+[profile.release] #profile used for `cargo build --release`
+# panic = "abort" #disable stack unwinding on panic
+
+
+
+[package.metadata.bootimage]
+test-args = [
+    "-device", 
+    "isa-debug-exit,iobase=0xf4,iosize=0x04", #a package to exit QEMU from the guest system
+    "-serial", #to see the serial output from QEMU
+    "stdio",
+    "-display",  #hide QEMU window that pops up for a short time
+    "none"
+] 
+test-success-exit-code = 33 #maps success exit code to exit code 0 hence cargo test correctly recognizes the success case
+test-timeout = 15 #time-out(in seconds) for bootloader if it fails ands ends up in a endless loop
+
+
+[[test]] 
+name = "should_panic"
+harness = false #disable the harness flag for should_panic as the test runner isn’t really needed for single test function
+
+[[test]]
+name = "stack_overflow"
+harness = false #same as disabling harness flag for stack_overflow
