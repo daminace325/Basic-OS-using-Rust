@@ -14,8 +14,11 @@ pub extern "C" fn _start() -> ! {  //start function
 
     rust_os::init(); 
 
-    // invoke a breakpoint exception, int3 execution causes this exception
-    x86_64::instructions::interrupts::int3();
+    //invoke a page fault for double fault
+    unsafe {
+        *(0xdeadbeef as *mut u8) = 42;
+    };
+
 
     #[cfg(test)] //ensure the call only happens during tests
     test_main();
