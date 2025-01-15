@@ -7,6 +7,7 @@
 use core::panic::PanicInfo;
 
 mod vga_buffer; //import module for VGA buffer
+mod serial; //import serial module
 
 #[no_mangle] //disable name mangling to ensure that the Rust compiler really outputs a function with the name _start
 pub extern "C" fn _start() -> ! {  //start function
@@ -28,7 +29,7 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[cfg(test)]
 pub fn test_runner(tests: &[&dyn Fn()]) { //a function to tests
-    println!("Running {} tests", tests.len());
+    serial_println!("Running {} tests", tests.len()); //print to the serial interface
     for test in tests {
         test();
     }
@@ -37,11 +38,12 @@ pub fn test_runner(tests: &[&dyn Fn()]) { //a function to tests
 }
 
 
+
 #[test_case]
 fn trivial_assertion() {
-    print!("trivial assertion... ");
-    assert_eq!(1, 1);
-    println!("[ok]");
+    serial_print!("trivial assertion... ");
+    assert_eq!(0, 1);
+    serial_println!("[ok]");
 }
 
 
