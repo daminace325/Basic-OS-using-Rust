@@ -6,11 +6,14 @@
 #![feature(abi_x86_interrupt)] //to use x86-interrupt calling convention
 
 use core::panic::PanicInfo;
+#[cfg(test)]
+use bootloader::{entry_point, BootInfo};
 
 pub mod serial; //import serial module
 pub mod vga_buffer; //import module for VGA buffer
 pub mod interrupts; //import interrupts module
 pub mod gdt; //import GDT(Global Descriptor Table)
+pub mod memory; //import memory module
 
 //a new testable trait
 pub trait Testable {
@@ -47,10 +50,14 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! { //exit QEMU with an error mes
     hlt_loop();
 }
 
+
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
+
 /// Entry point for `cargo test`
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! { //this function only used when 'cargo test --lib'
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! { //this function only used when 'cargo test --lib'
     init(); //to setup IDT before running tests
     test_main();
     hlt_loop();

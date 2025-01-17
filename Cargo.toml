@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-bootloader = "0.9" #use the bootloader crate responsible for initializing the CPU and loading the kernel
+#map_physical_memory feature maps the complete physical memory somewhere into 
+#the virtual address space hence the the kernel has access to all physical memory
+bootloader = { version = "0.9", features = ["map_physical_memory"]} #use the bootloader crate responsible for initializing the CPU and loading the kernel
 volatile = "0.2.6" #so that the write should not be optimized right away and prevent it getting ommited 
 spin = "0.5.2" #a type of mutex that instead of blocking, the threads simply try to lock it again and again in a tight loop thus burning CPU time until the mutex is free again
 x86_64 = "0.14.2" #will be used to exit from Qemu through abstractions 

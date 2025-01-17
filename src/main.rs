@@ -6,18 +6,25 @@
 
 use core::panic::PanicInfo;
 use rust_os::println;
+use bootloader::{BootInfo, entry_point};
 
+entry_point!(kernel_main);
 
-#[no_mangle] //disable name mangling to ensure that the Rust compiler really outputs a function with the name _start
-pub extern "C" fn _start() -> ! {  //start function
-    println!("Hello World{}", "!"); //directly use println! function using macros
+fn kernel_main(boot_info: &'static BootInfo) -> ! {  //start function
+    use rust_os::memory::active_level_4_table;
+    use x86_64::VirtAddr;
 
+    println!("Hello World{}", "!");
     rust_os::init();
 
-    use x86_64::registers::control::Cr3;
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let l4_table = unsafe { active_level_4_table(phys_mem_offset) };
 
-    let (level_4_page_table, _) = Cr3::read(); //function of the x86_64 that returns the currently active level 4 page table from the CR3 register
-    println!("Level 4 page table at: {:?}", level_4_page_table.start_address());
+    for (i, entry) in l4_table.iter().enumerate() {
+        if !entry.is_unused() { //print non-empty entries of pages
+            println!("L4 Entry {}: {:?}", i, entry);
+        }
+    }
 
     #[cfg(test)] //ensure the call only happens during tests
     test_main();
