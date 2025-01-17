@@ -14,18 +14,10 @@ pub extern "C" fn _start() -> ! {  //start function
 
     rust_os::init();
 
-    let ptr = 0xdeadbeaf as *mut u8; //try to access an address outside of our kernel to create a page fault error
-    unsafe { *ptr = 42; } //perform a write operation to the page we are trying to access
+    use x86_64::registers::control::Cr3;
 
-    // let ptr = 0x204341 as *mut u8;
-
-    // // read from a code page
-    // unsafe { let x = *ptr; }
-    // println!("read worked");
-
-    // // write to a code page
-    // unsafe { *ptr = 42; }
-    // println!("write worked"); // //this will not be printed because of the PROTECTION_VIOLATION flag is set in addition to the CAUSED_BY_WRITE flag
+    let (level_4_page_table, _) = Cr3::read(); //function of the x86_64 that returns the currently active level 4 page table from the CR3 register
+    println!("Level 4 page table at: {:?}", level_4_page_table.start_address());
 
     #[cfg(test)] //ensure the call only happens during tests
     test_main();
