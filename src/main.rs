@@ -12,11 +12,7 @@ use rust_os::println;
 pub extern "C" fn _start() -> ! {  //start function
     println!("Hello World{}", "!"); //directly use println! function using macros
 
-    rust_os::init(); 
-
-    fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed
-    }
+    rust_os::init();
 
     #[cfg(test)] //ensure the call only happens during tests
     test_main();
