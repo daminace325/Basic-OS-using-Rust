@@ -20,7 +20,11 @@ pub extern "C" fn _start() -> ! {  //start function
     //if this is printed that means exceptions are being handled
     println!("It did not crash!");
 
-    loop {}
+    loop {
+        //provoking a deadlock
+        use rust_os::print;
+        print!("-");
+    }
 }
 
 //function called on panic
