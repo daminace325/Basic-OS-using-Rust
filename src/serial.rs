@@ -14,7 +14,14 @@ lazy_static! { //to ensure the init method is called exactly once on its first u
 #[doc(hidden)]
 pub fn _print(args: ::core::fmt::Arguments) {
     use core::fmt::Write;
-    SERIAL1.lock().write_fmt(args).expect("Printing to serial failed");
+    use x86_64::instructions::interrupts; //import x86_64 interrupt handling utilities
+
+    interrupts::without_interrupts(|| {
+        SERIAL1
+            .lock() //no interrupts as long as the Mutex is locked
+            .write_fmt(args)
+            .expect("Printing to serial failed");
+    });
 }
 
 ///prints to the host through the serial interface.

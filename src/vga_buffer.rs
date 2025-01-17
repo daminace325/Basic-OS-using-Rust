@@ -158,7 +158,11 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    WRITER.lock().write_fmt(args).unwrap();
+    use x86_64::instructions::interrupts; //import x86_64 interrupt utilities
+
+    interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();  //no interrupt can occur as long as the Mutex is locked
+    });
 }
 
 
