@@ -44,7 +44,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! { //exit QEMU with an error mes
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
-    loop {}
+    hlt_loop();
 }
 
 /// Entry point for `cargo test`
@@ -53,7 +53,7 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! { //exit QEMU with an error mes
 pub extern "C" fn _start() -> ! { //this function only used when 'cargo test --lib'
     init(); //to setup IDT before running tests
     test_main();
-    loop {}
+    hlt_loop();
 }
 
 #[cfg(test)]
@@ -85,4 +85,12 @@ pub fn init() {
     interrupts::init_idt();  //call IDT from interrupt.rs
     unsafe { interrupts::PICS.lock().initialize() }; //initialize 8259 PIC to handle hardware interruptions
     x86_64::instructions::interrupts::enable(); //tells CPU to also listen to interrupt controller now
+}
+
+
+//a function allows the CPU to enter a sleep state in which it consumes much less energy
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
 }
