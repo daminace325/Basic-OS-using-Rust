@@ -46,8 +46,11 @@ extern "x86-interrupt" fn double_fault_handler(stack_frame: InterruptStackFrame,
 //added a handler function for the timer interrupt that was causing double fault
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame){
     print!(".");
+    unsafe {
+        PICS.lock()
+            .notify_end_of_interrupt(InterruptIndex::Timer.as_u8()); //PIC expects an EOI(End of interrupt) else it will still be busy processing first timer interrupt
+    }
 }
-
 //breakpoint exception test
 #[test_case]
 fn test_breakpoint_exception() {
