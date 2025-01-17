@@ -7,6 +7,7 @@ use lazy_static::lazy_static; //to make idt stactic since idt on its own is trea
 use crate::gdt;
 use pic8259::ChainedPics;
 use spin;
+use crate::print;
 
 //setting offesets for PIC to the range 32-47
 pub const PIC_1_OFFSET: u8 = 32;
@@ -23,6 +24,8 @@ lazy_static! {
             idt.double_fault.set_handler_fn(double_fault_handler) //double fault handler to handler exceptions who do not have a handler in IDT 
             .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX); //to set the stack index for double fault handler in the IDT
         }
+        idt[InterruptIndex::Timer.as_usize()]
+           .set_handler_fn(timer_interrupt_handler); //call the timer hanlder that was causing double fault exception
         idt
     };
 }
@@ -40,9 +43,31 @@ extern "x86-interrupt" fn double_fault_handler(stack_frame: InterruptStackFrame,
     panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
 }
 
+//added a handler function for the timer interrupt that was causing double fault
+extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame){
+    print!(".");
+}
+
 //breakpoint exception test
 #[test_case]
 fn test_breakpoint_exception() {
     // invoke a breakpoint exception
     x86_64::instructions::interrupts::int3();
+}
+
+
+#[derive(Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum InterruptIndex {
+    Timer = PIC_1_OFFSET,
+}
+
+impl InterruptIndex {
+    fn as_u8(self) -> u8 {
+        self as u8
+    }
+
+    fn as_usize(self) -> usize {
+        usize::from(self.as_u8())
+    }
 }
