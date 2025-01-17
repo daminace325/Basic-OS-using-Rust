@@ -5,6 +5,14 @@ use x86_64::structures::idt::{
 use crate::println;
 use lazy_static::lazy_static; //to make idt stactic since idt on its own is treated as a normal hence its time doesnt live long enough for interrupt handling
 use crate::gdt;
+use pic8259::ChainedPics;
+use spin;
+
+//setting offesets for PIC to the range 32-47
+pub const PIC_1_OFFSET: u8 = 32;
+pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
+
+pub static PICS: spin::Mutex<ChainedPics> = spin::Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) });
 
 
 lazy_static! {

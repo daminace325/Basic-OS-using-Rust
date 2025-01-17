@@ -9,6 +9,7 @@ volatile = "0.2.6" #so that the write should not be optimized right away and pre
 spin = "0.5.2" #a type of mutex that instead of blocking, the threads simply try to lock it again and again in a tight loop thus burning CPU time until the mutex is free again
 x86_64 = "0.14.2" #will be used to exit from Qemu through abstractions 
 uart_16550 = "0.2.0" #an old serial port used to send the data from our kernel to the host system
+pic8259 = "0.10.1" #a crate for Programmable Interrupt Controller to handle hardware interrupts
 
 
 #adding the lazy_static crate

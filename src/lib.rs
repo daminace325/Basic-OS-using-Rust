@@ -83,4 +83,6 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 pub fn init() {
     gdt::init(); //call GDT
     interrupts::init_idt();  //call IDT from interrupt.rs
+    unsafe { interrupts::PICS.lock().initialize() }; //initialize 8259 PIC to handle hardware interruptions
+    x86_64::instructions::interrupts::enable(); //tells CPU to also listen to interrupt controller now
 }
