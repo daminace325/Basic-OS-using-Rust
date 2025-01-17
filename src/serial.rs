@@ -16,7 +16,7 @@ pub fn _print(args: ::core::fmt::Arguments) {
     use core::fmt::Write;
     use x86_64::instructions::interrupts; //import x86_64 interrupt handling utilities
 
-    interrupts::without_interrupts(|| {
+    interrupts::without_interrupts(|| { // without_interrupts function takes a closure and executes it in an interrupt-free environment
         SERIAL1
             .lock() //no interrupts as long as the Mutex is locked
             .write_fmt(args)
