@@ -55,8 +55,14 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
     }
 }
 
+//the Port type of the x86_64 crate to read a byte from the keyboard’s 
+//data port is called a scancode and it represents the key press/release
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame){
-    print!("k"); //print a 'k' on interrupt by keyboard i.e. when any key is pressed
+    use x86_64::instructions::port::Port;
+
+    let mut port = Port::new(0x60);
+    let scancode: u8 = unsafe { port.read() }; //query to read the scancode of the pressed key
+    print!("{}", scancode); //print the read scancode
 
     unsafe {
         PICS.lock()
