@@ -58,25 +58,35 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
 //the Port type of the x86_64 crate to read a byte from the keyboard’s 
 //data port is called a scancode and it represents the key press/release
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame){
+    use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
+    use spin::Mutex;
     use x86_64::instructions::port::Port;
 
+    lazy_static! { //used to create a static keyboard object protected by Mutex
+        static ref KEYBOARD: Mutex<Keyboard<layouts::Us104Key, ScancodeSet1>> = Mutex::new(
+            Keyboard::new(
+                ScancodeSet1::new(),
+                layouts::Us104Key, //initialize the Keyboard with a US keyboard layout and the scancode set 1
+                HandleControl::Ignore
+            ));
+    }
+
+    let mut keyboard = KEYBOARD.lock(); //on each interrupt, lock the Mutex, read the scancode from the keyboard controller
     let mut port = Port::new(0x60);
-    let scancode: u8 = unsafe { port.read() }; //query to read the scancode of the pressed key
-    let key = match scancode { //'match' will translate the scancodes to keys
-        0x02 => Some('1'),
-        0x03 => Some('2'),
-        0x04 => Some('3'),
-        0x05 => Some('4'),
-        0x06 => Some('5'),
-        0x07 => Some('6'),
-        0x08 => Some('7'),
-        0x09 => Some('8'),
-        0x0a => Some('9'),
-        0x0b => Some('0'),
-        _ => None,
-    };
-    if let Some(key) = key {
-        print!("{}", key); //ignores keys other than 0-9
+
+    let scancode: u8 = unsafe { port.read() };
+    if let Ok(Some(key_event)) = keyboard.add_byte(scancode) { //translates the scancode into an Option<KeyEvent>
+        if let Some(key) = keyboard.process_keyevent(key_event) { //to interpret the key event like key was pressed or released
+            match key {
+                //translates the key event to a character using 'match'
+                DecodedKey::Unicode(character) => print!("{}", character), //to print character keys
+                DecodedKey::RawKey(key) => print!("{:?}", key), //to print raw keys like 'L-SHIFT'
+            }
+
+            // if let DecodedKey::Unicode(character) = key { //to print only  characters keys
+            //     print!("{}", character);
+            // }
+        }
     }
 
     unsafe {
