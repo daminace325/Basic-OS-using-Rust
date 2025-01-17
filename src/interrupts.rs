@@ -62,7 +62,22 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
 
     let mut port = Port::new(0x60);
     let scancode: u8 = unsafe { port.read() }; //query to read the scancode of the pressed key
-    print!("{}", scancode); //print the read scancode
+    let key = match scancode { //'match' will translate the scancodes to keys
+        0x02 => Some('1'),
+        0x03 => Some('2'),
+        0x04 => Some('3'),
+        0x05 => Some('4'),
+        0x06 => Some('5'),
+        0x07 => Some('6'),
+        0x08 => Some('7'),
+        0x09 => Some('8'),
+        0x0a => Some('9'),
+        0x0b => Some('0'),
+        _ => None,
+    };
+    if let Some(key) = key {
+        print!("{}", key); //ignores keys other than 0-9
+    }
 
     unsafe {
         PICS.lock()
