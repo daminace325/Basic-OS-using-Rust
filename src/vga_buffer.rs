@@ -185,10 +185,16 @@ fn test_println_many() {
 //a test function to verify that the printed lines really appear on the screen
 #[test_case]
 fn test_println_output() {
+    use core::fmt::Write;
+    use x86_64::instructions::interrupts;
+
     let s = "Some test string that fits on a single line";
-    println!("{}", s);
-    for (i, c) in s.chars().enumerate() { //iterates over the screen characters of the static WRITER    
-        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
-        assert_eq!(char::from(screen_char.ascii_character), c);
-    }
+    interrupts::without_interrupts(|| { //disable interrupts for the test’s duration to avoid deadlock
+        let mut writer = WRITER.lock(); //to keep WRITER locked for the complete duration of the test
+        writeln!(writer, "\n{}", s).expect("writeln failed"); //use the writeln macro that allows printing to an already locked writer
+        for (i, c) in s.chars().enumerate() { //iterates over the screen characters of the static WRITER
+            let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            assert_eq!(char::from(screen_char.ascii_character), c);
+        }
+    });
 }
