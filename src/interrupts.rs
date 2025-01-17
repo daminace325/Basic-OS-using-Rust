@@ -26,6 +26,9 @@ lazy_static! {
         }
         idt[InterruptIndex::Timer.as_usize()]
            .set_handler_fn(timer_interrupt_handler); //call the timer hanlder that was causing double fault exception
+
+        idt[InterruptIndex::Keyboard.as_usize()]
+           .set_handler_fn(keyboard_interrupt_handler); //call the keyboard handler to handler interrupts from keyboard
         idt
     };
 }
@@ -51,6 +54,17 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8()); //PIC expects an EOI(End of interrupt) else it will still be busy processing first timer interrupt
     }
 }
+
+extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame){
+    print!("k"); //print a 'k' on interrupt by keyboard i.e. when any key is pressed
+
+    unsafe {
+        PICS.lock()
+            .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
+    }
+}
+
+
 //breakpoint exception test
 #[test_case]
 fn test_breakpoint_exception() {
@@ -63,6 +77,7 @@ fn test_breakpoint_exception() {
 #[repr(u8)]
 pub enum InterruptIndex {
     Timer = PIC_1_OFFSET,
+    Keyboard, //handler function for the keyboard interrupt
 }
 
 impl InterruptIndex {
