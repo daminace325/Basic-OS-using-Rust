@@ -18,9 +18,6 @@ pub extern "C" fn _start() -> ! {  //start function
         stack_overflow(); // for each recursion, the return address is pushed
     }
 
-    // trigger a stack overflow
-    stack_overflow();
-
     #[cfg(test)] //ensure the call only happens during tests
     test_main();
 
