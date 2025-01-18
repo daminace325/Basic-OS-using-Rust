@@ -17,6 +17,7 @@ pub mod interrupts; //import interrupts module
 pub mod gdt; //import GDT(Global Descriptor Table)
 pub mod memory; //import memory module
 pub mod allocator; //import dummy allcator
+pub mod task; //import task
 
 //a new testable trait
 pub trait Testable {
