@@ -13,6 +13,7 @@ x86_64 = "0.14.2" #will be used to exit from Qemu through abstractions
 uart_16550 = "0.2.0" #an old serial port used to send the data from our kernel to the host system
 pic8259 = "0.10.1" #a crate for Programmable Interrupt Controller to handle hardware interrupts
 pc-keyboard = "0.7.0" #translates the scancodes of scancode sets 1 and 2
+linked_list_allocator = "0.9.0" #A simple allocator crate for no_std applications
 
 
 #adding the lazy_static crate

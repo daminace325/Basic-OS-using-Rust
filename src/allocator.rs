@@ -1,5 +1,5 @@
 #[global_allocator] //tells the Rust compiler which allocator instance it should use as the global heap allocator
-static ALLOCATOR: Dummy = Dummy;
+static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
 use alloc::alloc::{GlobalAlloc, Layout};
 use core::ptr::null_mut;
@@ -9,6 +9,7 @@ use x86_64::{
     },
     VirtAddr,
 };
+use linked_list_allocator::LockedHeap;
 
 pub struct Dummy;
 pub const HEAP_START: usize = 0x_4444_4444_0000; //memory starting address
@@ -49,6 +50,11 @@ pub fn init_heap(
         unsafe {
             mapper.map_to(page, frame, flags, frame_allocator)?.flush()
         };
+    }
+
+    //initialize the allocator after creating the heap
+    unsafe {
+        ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE);
     }
 
     Ok(())
