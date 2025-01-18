@@ -1,0 +1,9 @@
+[unstable] 
+build-std = ["core", "compiler_builtins", "alloc"] #core is a minimal rust library that contains basic Rust functionalities especially for bare-metal environments
+build-std-features = ["compiler-builtins-mem"] #contains implementations for all the needed functions
+
+[build]
+target = "x86_64-rust_os.json" #override the default target i.e. we dont have to specify --target to use cargo build
+
+[target.'cfg(target_os = "none")']
+runner = "bootimage runner" #configuration to run bootloader and qemu system
