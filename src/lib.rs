@@ -9,11 +9,14 @@ use core::panic::PanicInfo;
 #[cfg(test)]
 use bootloader::{entry_point, BootInfo};
 
+extern crate alloc; //contains the allocation and collection types
+
 pub mod serial; //import serial module
 pub mod vga_buffer; //import module for VGA buffer
 pub mod interrupts; //import interrupts module
 pub mod gdt; //import GDT(Global Descriptor Table)
 pub mod memory; //import memory module
+pub mod allocator; //import dummy allcator
 
 //a new testable trait
 pub trait Testable {

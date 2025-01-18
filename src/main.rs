@@ -4,16 +4,21 @@
 #![test_runner(rust_os::test_runner)]
 #![reexport_test_harness_main = "test_main"] //to change the name of the generated function to call test_main()
 
+extern crate alloc;
+
 use core::panic::PanicInfo;
 use rust_os::println;
 use bootloader::{BootInfo, entry_point};
+use alloc::boxed::Box;
 
 entry_point!(kernel_main);
+
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {  //start function
     use rust_os::memory;
     use x86_64::{structures::paging::Page, VirtAddr};
     use rust_os::memory::BootInfoFrameAllocator;
+    use rust_os::allocator;
 
     println!("Hello World{}", "!");
     rust_os::init();
@@ -25,13 +30,10 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {  //start function
         BootInfoFrameAllocator::init(&boot_info.memory_map)
     };
 
-    //map an unused page
-    let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
-    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
+    allocator::init_heap(&mut mapper, &mut frame_allocator)
+            .expect("heap initialization failed");
 
-    //write the string `New!` to the screen through the new mapping
-    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
-    unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e)}; //write 'New!' in white backgroud
+    let x = Box::new(41);
 
     #[cfg(test)] //ensure the call only happens during tests
     test_main();
